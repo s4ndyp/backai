@@ -66,9 +66,14 @@ export BACKAI_AGENT_TOKEN=<token>
 
 ### Downloads
 
-Bij elke push naar `main` bouwt CI agent-binaries (artifacts). Bij git tags (`v*`) komen ze op **GitHub Releases**.
+Agent-clients staan op **GitHub → Releases**:
+
+- **`agents-latest`** — bij elke merge naar `main` (meest recente build, aanbevolen voor homelab)
+- **`v1.0.0`** e.d. — vaste semver-release na `git tag v1.0.0 && git push origin v1.0.0`
 
 Bestandsnaam: `backai-agent-<versie>-linux-amd64`, `…-linux-arm64`, `…-windows-amd64.exe`
+
+(CI bewaart ook **workflow artifacts** per run; Releases zijn de permanente downloadlocatie.)
 
 Versie staat ingebakken (`backai-agent/<version>` User-Agent) en is zichtbaar in de UI onder Agents.
 
