@@ -112,8 +112,8 @@ jobs:
           path: dist/*
 
   release-assets:
-    if: startsWith(github.ref, 'refs/tags/v')
     needs: agents
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -121,7 +121,35 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - uses: softprops/action-gh-release@v2
+      - name: List built agents
+        run: ls -la dist/
+
+      - name: Publish semver release (git tag v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
         with:
           files: dist/*
           generate_release_notes: true
+
+      - name: Publish rolling agent release (main)
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: agents-latest
+          name: BackAI agents (latest main)
+          target_commitish: ${{ github.sha }}
+          prerelease: false
+          make_latest: true
+          files: dist/*
+          body: |
+            Automatisch gebouwde **backai-agent** clients van de laatste `main` commit.
+
+            | Platform | Bestand |
+            |----------|---------|
+            | Linux x64 | `backai-agent-*-linux-amd64` |
+            | Linux ARM64 | `backai-agent-*-linux-arm64` |
+            | Windows x64 | `backai-agent-*-windows-amd64.exe` |
+
+            Installeer ook [Restic](https://restic.net/). Zie [README](https://github.com/${{ github.repository }}#agents-installeren) voor registratie.
+
+            Voor een vast versienummer: git tag `v1.0.0` en push — dan verschijnt een semver release naast deze.
