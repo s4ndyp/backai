@@ -1,7 +1,9 @@
 .git
 .github
 web/node_modules
-deploy
+pb_data
+pb_public/assets
+pb_public/index.html
 dist
 *.md
 .env

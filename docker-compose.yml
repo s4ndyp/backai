@@ -1,0 +1,18 @@
+# BackAI — PocketBase + UI in één container (zoals tracknote).
+# Pull: ghcr.io/s4ndyp/backai:latest
+
+services:
+  backai:
+    image: ${BACKAI_IMAGE:-ghcr.io/s4ndyp/backai:latest}
+    pull_policy: always
+    container_name: backai
+    restart: unless-stopped
+    ports:
+      - "${BACKAI_HTTP_PORT:-8090}:8090"
+    environment:
+      BACKAI_AGENT_REGISTER_KEY: ${BACKAI_AGENT_REGISTER_KEY:-change-agent-register-key}
+    volumes:
+      - backai_data:/app/pb_data
+
+volumes:
+  backai_data:

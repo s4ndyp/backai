@@ -2,6 +2,7 @@
 *.exe
 dist/
 web/node_modules/
-cmd/server/static/*
-!cmd/server/static/.gitkeep
+pb_public/*
+!pb_public/.gitkeep
+pb_data/
 .DS_Store
