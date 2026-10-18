@@ -21,7 +21,7 @@ export default function App() {
           <span className="brand-mark" />
           <div>
             <strong>BackAI</strong>
-            <small>Restic control plane</small>
+            <small>PocketBase · Restic</small>
           </div>
         </div>
         <nav>
