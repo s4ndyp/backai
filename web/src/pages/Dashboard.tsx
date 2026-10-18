@@ -16,8 +16,8 @@ export default function Dashboard() {
     return () => clearInterval(t);
   }, []);
 
-  const chartData = runs.slice(0, 12).reverse().map((r) => ({
-    name: (r.jobName || r.id.slice(0, 8)).slice(0, 12),
+  const chartData = [...runs].slice(0, 12).reverse().map((r) => ({
+    name: (r.jobName || r.id?.slice(0, 8) || "run").slice(0, 12),
     mb: Math.round(r.bytesAdded / (1024 * 1024)),
     sec: Math.max(1, Math.round(r.durationMs / 1000)),
   }));
@@ -33,9 +33,9 @@ export default function Dashboard() {
         <StatCard label="Agents online" value={`${stats?.onlineAgents ?? "–"} / ${stats?.totalAgents ?? "–"}`} />
         <StatCard label="Actieve jobs" value={`${stats?.enabledJobs ?? "–"} / ${stats?.totalJobs ?? "–"}`} />
         <StatCard label="Runs (24h)" value={stats?.runsLast24h ?? "–"} />
-        <StatCard label="Succes (24h)" value={stats ? `${stats.successRate24h.toFixed(0)}%` : "–"} />
-        <StatCard label="Data toegevoegd (24h)" value={stats ? formatBytes(stats.bytesAdded24h) : "–"} />
-        <StatCard label="Gem. throughput" value={stats ? `${stats.avgThroughputMBs.toFixed(1)} MiB/s` : "–"} />
+        <StatCard label="Succes (24h)" value={stats ? `${(stats.successRate24h ?? 0).toFixed(0)}%` : "–"} />
+        <StatCard label="Data toegevoegd (24h)" value={stats ? formatBytes(stats.bytesAdded24h ?? 0) : "–"} />
+        <StatCard label="Gem. throughput" value={stats ? `${(stats.avgThroughputMBs ?? 0).toFixed(1)} MiB/s` : "–"} />
       </div>
 
       <section className="panel">

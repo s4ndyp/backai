@@ -62,7 +62,13 @@ export type JobRun = {
 async function get<T>(path: string): Promise<T> {
   const r = await fetch(path);
   if (!r.ok) throw new Error(await r.text());
-  return r.json();
+  const data = await r.json();
+  return data as T;
+}
+
+async function getList<T>(path: string): Promise<T[]> {
+  const data = await get<T[] | null>(path);
+  return Array.isArray(data) ? data : [];
 }
 
 async function post<T>(path: string, body: unknown): Promise<T> {
@@ -77,10 +83,10 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 
 export const api = {
   dashboard: () => get<DashboardStats>("/api/dashboard"),
-  agents: () => get<Agent[]>("/api/agents"),
-  repos: () => get<Repository[]>("/api/repositories"),
+  agents: () => getList<Agent>("/api/agents"),
+  repos: () => getList<Repository>("/api/repositories"),
   createRepo: (body: Record<string, string>) => post<Repository>("/api/repositories", body),
-  jobs: () => get<BackupJob[]>("/api/jobs"),
+  jobs: () => getList<BackupJob>("/api/jobs"),
   createJob: (body: Record<string, unknown>) => post<BackupJob>("/api/jobs", body),
   runJob: (id: string) => post<JobRun>(`/api/jobs/${id}/run`, {}),
   toggleJob: (id: string, enabled: boolean) =>
@@ -89,7 +95,7 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ enabled }),
     }).then((r) => r.json()),
-  runs: () => get<JobRun[]>("/api/runs"),
+  runs: () => getList<JobRun>("/api/runs"),
   version: () => get<{ version: string }>("/api/version"),
 };
 

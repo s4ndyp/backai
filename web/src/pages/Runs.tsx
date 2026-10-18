@@ -40,7 +40,7 @@ export default function Runs() {
                   <div className="progress">
                     <div style={{ width: `${r.progressPct}%` }} />
                   </div>
-                  {r.progressPct.toFixed(0)}%
+                  {(r.progressPct ?? 0).toFixed(0)}%
                 </td>
                 <td>{formatBytes(r.bytesAdded)}</td>
                 <td>{r.durationMs ? formatDuration(r.durationMs) : "–"}</td>
