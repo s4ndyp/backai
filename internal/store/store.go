@@ -60,7 +60,7 @@ func (s *Store) ListAgents(ctx context.Context) ([]models.Agent, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var out []models.Agent
+	out := make([]models.Agent, 0)
 	for rows.Next() {
 		var a models.Agent
 		if err := rows.Scan(&a.ID, &a.Name, &a.Hostname, &a.OS, &a.AgentVersion, &a.CreatedAt, &a.LastSeenAt); err != nil {
@@ -106,7 +106,7 @@ func (s *Store) ListRepositories(ctx context.Context) ([]models.SMBRepository, e
 		return nil, err
 	}
 	defer rows.Close()
-	var out []models.SMBRepository
+	out := make([]models.SMBRepository, 0)
 	for rows.Next() {
 		var r models.SMBRepository
 		if err := rows.Scan(&r.ID, &r.Name, &r.SMBHost, &r.SMBShare, &r.RepoSubpath, &r.Username, &r.Password, &r.ResticPassword, &r.CreatedAt); err != nil {
@@ -147,6 +147,7 @@ func (s *Store) GetJob(ctx context.Context, id uuid.UUID) (models.BackupJob, err
 	}
 	_ = json.Unmarshal(src, &j.Sources)
 	_ = json.Unmarshal(ex, &j.Excludes)
+	normalizeJobPaths(&j)
 	return j, nil
 }
 
@@ -162,7 +163,7 @@ func (s *Store) ListJobs(ctx context.Context) ([]models.BackupJob, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var out []models.BackupJob
+	out := make([]models.BackupJob, 0)
 	for rows.Next() {
 		var j models.BackupJob
 		var src, ex []byte
@@ -171,9 +172,19 @@ func (s *Store) ListJobs(ctx context.Context) ([]models.BackupJob, error) {
 		}
 		_ = json.Unmarshal(src, &j.Sources)
 		_ = json.Unmarshal(ex, &j.Excludes)
+		normalizeJobPaths(&j)
 		out = append(out, j)
 	}
 	return out, rows.Err()
+}
+
+func normalizeJobPaths(j *models.BackupJob) {
+	if j.Sources == nil {
+		j.Sources = []string{}
+	}
+	if j.Excludes == nil {
+		j.Excludes = []string{}
+	}
 }
 
 func (s *Store) UpdateJobEnabled(ctx context.Context, id uuid.UUID, enabled bool) error {
@@ -225,7 +236,7 @@ func (s *Store) ListRuns(ctx context.Context, limit int) ([]models.JobRun, error
 		return nil, err
 	}
 	defer rows.Close()
-	var out []models.JobRun
+	out := make([]models.JobRun, 0)
 	for rows.Next() {
 		var r models.JobRun
 		if err := rows.Scan(&r.ID, &r.JobID, &r.Status, &r.RequestedAt, &r.StartedAt, &r.FinishedAt,
@@ -360,7 +371,7 @@ func (s *Store) ListEnabledJobsWithCron(ctx context.Context) ([]models.BackupJob
 		return nil, err
 	}
 	defer rows.Close()
-	var out []models.BackupJob
+	out := make([]models.BackupJob, 0)
 	for rows.Next() {
 		var j models.BackupJob
 		var src, ex []byte
@@ -369,6 +380,7 @@ func (s *Store) ListEnabledJobsWithCron(ctx context.Context) ([]models.BackupJob
 		}
 		_ = json.Unmarshal(src, &j.Sources)
 		_ = json.Unmarshal(ex, &j.Excludes)
+		normalizeJobPaths(&j)
 		out = append(out, j)
 	}
 	return out, rows.Err()
