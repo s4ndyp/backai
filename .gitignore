@@ -1,0 +1,7 @@
+.env
+*.exe
+dist/
+web/node_modules/
+cmd/server/static/*
+!cmd/server/static/.gitkeep
+.DS_Store

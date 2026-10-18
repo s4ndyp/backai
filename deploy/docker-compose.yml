@@ -1,0 +1,36 @@
+# BackAI server stack for Proxmox LXC (Docker) or any Docker host.
+# Pull: ghcr.io/s4ndyp/backai:latest
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: backai
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: backai
+    volumes:
+      - backai_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U backai -d backai"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backai:
+    image: ${BACKAI_IMAGE:-ghcr.io/s4ndyp/backai:latest}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${BACKAI_HTTP_PORT:-8080}:8080"
+    environment:
+      BACKAI_HTTP_ADDR: ":8080"
+      BACKAI_DATABASE_URL: postgres://backai:${POSTGRES_PASSWORD:-change-me}@postgres:5432/backai?sslmode=disable
+      BACKAI_SESSION_SECRET: ${BACKAI_SESSION_SECRET:-change-me-long-random}
+      BACKAI_AGENT_REGISTER_KEY: ${BACKAI_AGENT_REGISTER_KEY:-change-agent-register-key}
+      BACKAI_MIGRATE_ON_START: "true"
+
+volumes:
+  backai_pg:
